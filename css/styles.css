@@ -431,6 +431,19 @@ button {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.task-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.task-options {
+  color: #758ca3;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
 .task:hover,
 .project:hover {
   border-color: #8ab7f9;
@@ -450,10 +463,38 @@ button {
 
 .taskfoot {
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 10px;
   margin-top: 14px;
   color: #69809c;
   font-size: 11px;
+}
+
+.task-date,
+.task-owner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.task-owner {
+  font-size: 10px;
+}
+
+.task-avatar {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  display: inline-grid;
+  place-items: center;
+  border: 2px solid white;
+  border-radius: 50%;
+  background: #1a466c;
+  color: white;
+  font-size: 8px;
+  font-weight: 700;
 }
 
 /* Proyectos */
