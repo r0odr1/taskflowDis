@@ -21,7 +21,7 @@ const iconPaths = {
   buscar: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
   mas: '<path d="M12 5v14M5 12h14"/>',
   notificaciones: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
-  cerrar: '<path d="M6 6l12 12M18 6 6 18"/>'
+  cerrar: '<path d="M6 6l12 12M18 6 6 18"/>',
 // Iconos añadidos: chevron, flechas del calendario, reloj, puntos para el menú de tarjeta y ajustes
   chevron: '<path d="m6 9 6 6 6-6"/>',
   izq: '<path d="m15 18-6-6 6-6"/>',
@@ -58,7 +58,7 @@ const nav = [
   ['mensajes', 'mensajes', 'Mensajes']
 ];
 
-const seedtasks = [
+const seedTasks = [
   ['Optimizar tabla Servicios y Filtros', 'Por hacer', 'Media', 'Ana Gómez', '14 nov. 2026'],
   ['Landing Page Revamp', 'Por hacer', 'Baja', 'Carlos Pérez', '16 nov. 2026'],
   ['Home Screen UI/UX', 'Por hacer', 'Media', 'Laura Martínez', '18 nov. 2026'],
@@ -354,16 +354,12 @@ function taskcard(task) {
 function dashboard() {
   const cnt = s => tasks.filter(t => t[1] === s).length;
   const total = tasks.length || 1;
+  
   const stats = [
-    ['Proyectos activos', '10', '+2 este mes'],
-    ['Tareas pendientes', '18', 'En seguimiento'],
-    ['Tareas completadas', '32', '+8 esta semana'],
-    ['Avance general', '72%', 'Buen progreso']
     ['Tareas totales', tasks.length, 'tareas', 'blue', '+12% desde el mes pasado'],
     ['En progreso', cnt('En curso'), 'reloj', 'cyan', 'Tareas activas del equipo'],
     ['En revisión', cnt('En revisión'), 'filtro', 'violet', 'Esperando aprobación'],
-    ['Completadas', cnt('Completadas'), 'tareas', 'green', Math.round(cnt('Completadas') / 
-  total * 100) + '% de cumplimiento']
+    ['Completadas', cnt('Completadas'), 'tareas', 'green', Math.round(cnt('Completadas') / total * 100) + '% de cumplimiento']
   ];
 
   const week = [3, 5, 6, 8, 7, 9, 11];
@@ -499,7 +495,7 @@ function tareaslista() {
                   ${task[2]}
                 </span>
               </td>
-              <td>${esc(task[3]}</td>
+              <td>${esc(task[3])}</td>
               <td>
                 <button class="btn secondary" onclick="openTask(${tasks.indexOf(task)})">Ver detalle</button>
               </td>
