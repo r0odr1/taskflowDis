@@ -1195,3 +1195,423 @@ button {
     font-size: 8px;
   }
 }
+
+/* Cambios añadidos, seria la fidelidad visual y funcionalidad */
+/* Insignia azul con el número en Mensajes */
+.nav .badge {
+  margin-left:auto;min-width:24px;
+  height:24px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:#1476e6;
+  color:#fff;
+  font-size:12px;
+  font-weight:700;
+}
+/* Tamaño del logo. */
+.brand {
+  font-size:25px;
+}
+
+.brand-name {
+  font-weight:700;
+  letter-spacing:-.8px;
+}
+
+/* Botón Nueva tarea y selector de mes */
+.newbtn {
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+
+.headtools {
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.monthpick {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 14px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:#fff;
+  color:#476586;
+}
+
+.monthpick select {
+  border:0;
+  background:none;
+  padding:12px 0;
+  color:var(--ink);
+  font:inherit;
+}
+
+/* Buscadores habilitados */
+.search-wrap input {
+  opacity:1;
+  cursor:text;
+  outline:none;
+}
+
+.topbell {
+  margin-right:4px;
+}
+
+.avatar,.av,.message-avatar {
+  font-size:11px;
+}
+
+/* Avatares con iniciales y tarjetas del tablero (menú …, fecha, responsable) */
+.av {
+  display:inline-grid;
+  place-items:center;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  color:#fff;
+  font-size:8px;
+  font-weight:700;
+  vertical-align:middle;
+}
+
+.lane {
+  padding:16px;
+}
+
+.lanehead {
+  font-size:16px;
+}
+
+.taskhead {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.dots {
+  border:0;
+  background:none;
+  color:#8a9ab0;
+  padding:2px;
+  border-radius:6px;
+}
+
+.dots:hover {
+  background:#eef3fa;
+  color:var(--blue);
+}
+
+.task strong {
+  margin:10px 0 6px;
+  font-size:14px;
+}
+
+.task p {
+  margin:0;
+}
+
+.taskfoot {
+  align-items:center;
+}
+
+.dateline,.owner {
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+}
+
+/* Dashboard: tarjetas de métricas con icono, gráfica de línea y dona de estados */
+.statgrid .stat {
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:24px;
+}
+
+.statico {
+  width:52px;
+  height:52px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+}
+
+.statico.blue {
+  background:#e6f0ff;
+  color:#2875e7;
+}
+
+.statico.cyan {
+  background:#e0f6fb;
+  color:#0f9bb5;
+}
+
+.statico.violet {
+  background:#efe9ff;
+  color:#7a54d6;
+}
+
+.statico.green {
+  background:#e3f8ee;
+  color:#1ca76b;
+}
+
+.linechart {
+  width:100%;
+  height:auto;
+  margin-top:8px;
+}
+
+.donutwrap {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:34px;
+  padding-top:12px;
+  flex-wrap:wrap;
+}
+
+.donut {
+  width:170px;
+  height:170px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+}
+
+.donut div {
+  width:126px;
+  height:126px;
+  border-radius:50%;
+  background:#fff;
+  display:grid;
+  place-content:center;
+  text-align:center;
+}
+
+.donut strong {
+  font-size:28px;
+}
+
+.donut span {
+  color:var(--muted);
+  font-size:12px;
+}
+
+.legend {
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:grid;
+  gap:12px;
+  font-size:12px;
+  color:#5b6f8a;
+}
+
+.legend li {
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.legend i {
+  width:8px;
+  height:8px;
+  border-radius:50%;
+}
+.legend b { 
+  margin-left:auto;
+  padding-left:24px;
+  color:var(--ink);
+}
+
+/* Calendario: cuadrícula, etiquetas por prioridad y panel Agenda del día */
+.calwrap {
+  display:grid;
+  grid-template-columns:1fr 350px;
+  gap:20px;
+  align-items:start;
+}
+
+.calpanel {
+  padding:0;
+  overflow:hidden;
+}
+
+.calnav {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:20px 22px;
+  border-bottom:1px solid var(--line);
+}
+
+.calnav h2 {
+  margin:0;
+}
+
+.navbtns {
+  display:flex;
+  gap:8px;
+}
+
+.sq {
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:#fff;
+  color:#2d4a72;
+}
+
+.cal7 {
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+}
+
+.calhead {
+  padding:14px;
+  text-align:center;
+  font-size:11px;
+  color:#8a9ab0;
+  border-bottom:1px solid var(--line);
+}
+
+.cd {
+  min-height:112px;
+  padding:10px;
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  cursor:pointer;
+  overflow:hidden;
+}
+
+.cd.empty {
+  background:#fafcff;
+  cursor:default;
+}
+
+.cd.sel {
+  outline:2px solid #5aa2f5;
+  outline-offset:-2px;
+}
+
+.dn {
+  display:inline-grid;
+  place-items:center;
+  min-width:26px;
+  height:26px;
+  margin-bottom:8px;
+  border-radius:50%;
+  font-size:12px;
+  color:#4d6485;
+}
+
+.dn.on {
+  background:var(--blue);
+  color:#fff;
+}
+
+.pill {
+  margin-bottom:4px;
+  padding:4px 6px;
+  border-left:3px solid;
+  border-radius:4px;
+  font-size:10px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  cursor:pointer;
+}
+
+.pill.blue {
+  background:#e6f0ff;
+  color:#1e66cc;
+  border-color:#2875e7;
+}
+
+.pill.red {
+  background:#fff0f1;
+  color:#e0475a;
+  border-color:#ef596b;
+}
+
+.pill.green {
+  background:#e5f9f0;
+  color:#169e63;
+  border-color:#21bd8a;
+}
+
+.more {
+  font-size:10px;
+  color:var(--muted);
+}
+
+.agenda {
+  position:sticky;
+  top:20px;
+}
+
+.agendahead {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--line);
+  margin-bottom:16px;
+}
+
+.agendahead small {
+  color:var(--blue);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.08em;
+}
+
+.agendahead h2 {
+  margin:6px 0 0;
+  font-size:17px;
+}
+
+.sq-btn {
+  width:40px;
+  height:40px;
+  padding:0;
+  display:grid;
+  place-items:center;
+}
+
+.agendaitem {
+  display:grid;
+  gap:8px;
+  padding:12px 0;
+  border-bottom:1px solid var(--line)
+  ;cursor:pointer;
+}
+
+.agendaitem p {
+  margin:0;
+  font-size:12px;
+}
+
+/* Detalle de tarea: selector de estado. */
+.detail select {
+  padding:8px 10px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  font:inherit;
+}
+
+@media (max-width:1100px){.calwrap{grid-template-columns:1fr}}
+@media (max-width:700px){.headtools{flex-direction:column;align-items:stretch}.cd{min-height:70px;padding:4px}.pill{font-size:8px}}
+
+/* Accesibilidad: foco visible con teclado y respeto a "reducir movimiento" */
+:focus-visible{outline:2px solid #5aa2f5;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
