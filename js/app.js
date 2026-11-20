@@ -58,37 +58,6 @@ const nav = [
   ['mensajes', 'mensajes', 'Mensajes']
 ];
 
-const seedTasks = [
-  ['Optimizar tabla Servicios y Filtros', 'Por hacer', 'Media', 'Ana Gómez', '14 nov. 2026'],
-  ['Landing Page Revamp', 'Por hacer', 'Baja', 'Carlos Pérez', '16 nov. 2026'],
-  ['Home Screen UI/UX', 'Por hacer', 'Media', 'Laura Martínez', '18 nov. 2026'],
-  ['Implementar API de Proyectos', 'En curso', 'Alta', 'Sofía Torres', '12 nov. 2026'],
-  ['Desarrollo de tablero Kanban', 'En curso', 'Media', 'Diego López', '15 nov. 2026'],
-  ['Integración con base de datos', 'En curso', 'Alta', 'Valentina Ruiz', '17 nov. 2026'],
-  ['Documentación Swagger', 'En revisión', 'Media', 'Laura Martínez', '13 nov. 2026'],
-  ['Diseño de componentes', 'En revisión', 'Baja', 'Andrés Castaño', '16 nov. 2026'],
-  ['Pruebas de integración', 'En revisión', 'Media', 'Daniel Rojas', '20 nov. 2026'],
-  ['Configuración del entorno', 'Completadas', 'Baja', 'Carlos Pérez', '10 nov. 2026'],
-  ['Estructura del proyecto', 'Completadas', 'Media', 'Ana Gómez', '11 nov. 2026'],
-  ['Modelo de datos', 'Completadas', 'Baja', 'Sofía Torres', '11 nov. 2026']
-];
-
-// Descripción de cada tarea de ejemplo (se muestra en tarjetas, agenda y detalle).
-const descs = {
-  'Optimizar tabla Servicios y Filtros': 'Implementar filtros de búsqueda y paginación en la tabla de servicios.',
-  'Landing Page Revamp': 'Rediseñar la página principal con un nuevo estilo visual y mejor experiencia.',
-  'Home Screen UI/UX': 'Diseñar la pantalla de inicio de la aplicación con enfoque en usabilidad.',
-  'Implementar API de Proyectos': 'Crear endpoints para la gestión de proyectos (CRUD).',
-  'Desarrollo de tablero Kanban': 'Implementar el tablero de tareas con estados y filtros.',
-  'Integración con base de datos': 'Conectar la API con la base de datos y validar las consultas.',
-  'Documentación Swagger': 'Configurar y validar la documentación de la API REST.',
-  'Diseño de componentes': 'Revisar y ajustar componentes UI según la guía de estilo.',
-  'Pruebas de integración': 'Ejecutar y documentar las pruebas de integración del sistema.',
-  'Configuración del entorno': 'Instalar dependencias y configurar el proyecto en GitHub.',
-  'Estructura del proyecto': 'Crear la arquitectura inicial del frontend y backend.',
-  'Modelo de datos': 'Definir las entidades y relaciones de la base de datos.'
-};
-
 // Estados del tablero, colores de columnas, equipo, meses abreviados y paleta de avatares.
 const states = ['Por hacer', 'En curso', 'En revisión', 'Completadas'];
 const lanes = [['Por hacer', '#5d7ba1'], ['En curso', '#30a4ee'], ['En revisión', '#ffca2c'], ['Completadas', '#21bd8a']];
@@ -97,15 +66,57 @@ const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', '
 const palette = ['#0f3d6e', '#8a3b3b', '#5b3f9e', '#1f7a5c', '#a0562a', '#246c98'];
 
 // Estado con persistencia en localStorage
-// Las tareas se cargan desde localStorage; si no hay datos se usan las de ejemplo (seedTasks) con su descripción.
-let tasks;
-try { tasks = JSON.parse(localStorage.getItem('tf-tasks') || 'null'); } catch (e) { tasks = null; }
-if (!Array.isArray(tasks)) tasks = seedTasks.map(t => [...t, descs[t[0]]]);
-let selected = 0, query = '', day = 14;
+// Recupera las tareas almacenadas localmente.
+// Si no existen registros, inicia con un arreglo vacío.
+
+const STORAGE_KEY = 'tf-tasks';
+
+// Recupera las tareas almacenadas en el navegador.
+function loadTasks() {
+  try {
+    const storedTasks = localStorage.getItem(STORAGE_KEY);
+
+    if (storedTasks === null) {
+      return [];
+    }
+
+    const parsedTasks = JSON.parse(storedTasks);
+
+    return Array.isArray(parsedTasks) ? parsedTasks : [];
+  } catch (error) {
+    console.error('Error al cargar las tareas:', error);
+    return [];
+  }
+}
+
+// Estado inicial de la aplicación.
+let tasks = loadTasks();
+let selected = 0;
+let query = '';
+let day = 14;
 
 // Guarda las tareas en el navegador.
-function save() { try { localStorage.setItem('tf-tasks', JSON.stringify(tasks)); } catch (e) 
-{} }
+function save() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  } catch (error) {
+    console.error('Error al guardar las tareas:', error);
+  }
+}
+
+function clearAllTasks() {
+  const confirmed = confirm('¿Estás seguro de que deseas eliminar todas las tareas? Esta acción no se puede deshacer.');
+
+  if (!confirmed) {
+    return;
+  }
+
+  tasks = [];
+  selected = 0;
+
+  save();
+  go('tareas');
+}
 
 // Filtra las tareas por prioridad y por el texto buscado.
 function visible() {
@@ -360,24 +371,23 @@ function dashboard() {
   const total = tasks.length || 1;
   
   const stats = [
-    ['Tareas totales', tasks.length, 'tareas', 'blue', '+12% desde el mes pasado'],
+    ['Tareas totales', tasks.length, 'tareas', 'blue', 'Registradas en este navegador'],
     ['En progreso', cnt('En curso'), 'reloj', 'cyan', 'Tareas activas del equipo'],
     ['En revisión', cnt('En revisión'), 'filtro', 'violet', 'Esperando aprobación'],
     ['Completadas', cnt('Completadas'), 'tareas', 'green', Math.round(cnt('Completadas') / total * 100) + '% de cumplimiento']
   ];
 
-  const week = [3, 5, 6, 8, 7, 9, 11];
-  const pts = week.map((v, i) => [45 + i * 100, 190 - v * 15]);
-  const line = pts.map(p => p.join(',')).join(' ');
   let acc = 0;
-  const donut = lanes.map(([n, c]) => { const from = acc; acc += cnt(n) / total * 100; 
-  return `${c} ${from}% ${acc}%`; }).join(',');
-  const recent = [
-    ['Sofía Torres', 'Actualizó la API de Proyectos'],
-    ['Ana Gómez', 'Creó una nueva tarea'],
-    ['Carlos Pérez', 'Completó configuración'],
-    ['Laura Martínez', 'Revisó documentación']
-  ];
+
+  const donut = tasks.length > 0
+    ? lanes.map(([name, color]) => {
+        const from = acc;
+
+        acc += (cnt(name) / tasks.length) * 100;
+
+        return `${color} ${from}% ${acc}%`;
+      }).join(',')
+    : '#e5edf7 0% 100%';
 
   return `
     ${head('Dashboard', 'Aquí tienes un resumen del progreso de tu equipo.', newBtn())}
@@ -390,15 +400,27 @@ function dashboard() {
     </div>
     <div class="layout2">
       <section class="panel">
-         <h2>Productividad</h2>
-        <p class="sub">Tareas completadas durante la semana</p>
-        <svg viewBox="0 0 700 230" class="linechart" role="img" aria-label="Tareas completadas por día">
-          ${[0, 3, 6, 9, 12].map(g => `<line x1="40" x2="660" y1="${190 - g * 15}" y2="${190 - g * 15}" stroke="#e8eef6"/><text x="30" y="${194 - g * 15}" font-size="11" text-anchor="end" fill="#8a9ab0">${g}</text>`).join('')}
-          <polygon points="45,190 ${line} 645,190" fill="#2f80ed" opacity=".12"/>
-          <polyline points="${line}" fill="none" stroke="#2f80ed" stroke-width="3" stroke-linejoin="round"/>
-          ${pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="4.5" fill="#fff" stroke="#2f80ed" stroke-width="2.5"/>`).join('')}
-          ${['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((d, i) => `<text x="${45 + i * 100}" y="216" font-size="11" text-anchor="middle" fill="#8a9ab0">${d}</text>`).join('')}
-        </svg>
+        <h2>Progreso de tareas</h2>
+        <p class="sub">Porcentaje de tareas completadas</p>
+        ${tasks.length === 0
+          ? `<p class="sub">
+              Todavía no hay tareas registradas.
+              Crea tu primera tarea para comenzar.
+            </p>`
+          : `
+            <p class="sub">
+              ${cnt('Completadas')} de ${tasks.length}
+              tareas completadas.
+            </p>
+
+            <div class="bar" style="margin-top: 20px;">
+              <b style="width: ${
+                (cnt('Completadas') / tasks.length) * 100
+              }%"></b>
+            </div>
+          `
+        }
+
       </section>
       <section class="panel">
         <h2>Estado de tareas</h2>
@@ -413,23 +435,45 @@ function dashboard() {
     </div>
     <section class="panel" style="margin-top:20px">
       <h2>Próximas tareas</h2>
-      ${tasks.slice(0, 3).map(task => `
-        <div class="listrow">
-          <div>
-            <strong>${task[0]}</strong>
-            <br>
-            <span class="sub">${task[3]}</span>
-          </div>
-          <button class="btn secondary" onclick="openTask(${tasks.indexOf(task)})">Ver detalle</button>
-        </div>
-      `).join('')}
+      ${tasks.length === 0
+        ? '<p class="sub">No tienes tareas registradas.</p>'
+        : tasks
+            .filter(task => task[1] !== 'Completadas')
+            .slice(0, 3)
+            .map(task => `
+              <div class="listrow">
+                <div>
+                  <strong>${esc(task[0])}</strong>
+                  <br>
+                  <span class="sub">${esc(task[3])}</span>
+                </div>
+
+                <button
+                  class="btn secondary"
+                  onclick="openTask(${tasks.indexOf(task)})"
+                >
+                  Ver detalle
+                </button>
+              </div>
+            `).join('') || '<p class="sub">No tienes tareas pendientes.</p>'
+      }
     </section>
     <section class="panel">
-        <h2>Actividad reciente</h2>
-         ${recent.map(([name, act]) => `
-          <div class="feedrow"><div>${avatar(name)} <strong>${name}</strong><br>
-          <span>${act}</span></div><span>Hoy</span></div>`).join('')}
-           </section>
+      <h2>Tareas registradas</h2>
+      ${tasks.length === 0
+        ? '<p class="sub">Aún no tienes tareas registradas.</p>'
+        : tasks.slice(0, 4).map(task => `
+            <div class="feedrow">
+              <div>
+                ${avatar(task[3])}
+                <strong>${esc(task[0])}</strong>
+                <p class="sub">${esc(task[1])}</p>
+              </div>
+              <span>${esc(task[4])}</span>
+            </div>
+          `).join('')
+      }
+    </section>
     </div>
   `;
 }
@@ -458,10 +502,17 @@ function tareas() {
             ${name}
             <span class="count">${visibleTasks.filter(task => task[1] === name).length}</span>
           </div>
-          ${visibleTasks
-            .filter(task => task[1] === name)
-            .map(taskcard)
-            .join('')}
+          ${visibleTasks.filter(task => task[1] === name).length > 0
+            ? visibleTasks
+                .filter(task => task[1] === name)
+                .map(taskcard)
+                .join('')
+            : `
+              <div class="empty-lane">
+                <p>No hay tareas en esta columna.</p>
+              </div>
+            `
+          }
         </section>
       `).join('')}
     </div>
@@ -546,7 +597,11 @@ function proyectos() {
 
 // Modificación, en el calendario ahora tendra las tareas por día, selección de día y panel Agenda del día.
 function calendario() {
-  const dated = d => tasks.filter(t => t[4].startsWith(d + ' nov.'));
+  const dated = d => tasks.filter(t => {
+    const match = t[4].match(/^(\d{1,2}) nov\. 2026$/);
+
+    return match && Number(match[1]) === d;
+  });
   const names = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
   const cells = Array.from({ length: 42 }, (_, i) => i - 5);
   const agenda = dated(day);
@@ -836,10 +891,28 @@ function detalle() {
 function ajustes() {
   return `
     ${head('Ajustes', 'Preferencias de la aplicación.')}
+
     <section class="panel">
-      <h2>Datos locales</h2>
-      <p class="sub">Las tareas se guardan en este navegador.</p>
-      <p><button class="btn secondary" onclick="localStorage.removeItem('tf-tasks'); location.reload()">Restablecer datos de ejemplo</button></p>
+      <h2>Administración de datos</h2>
+
+      <p class="sub">
+        Las tareas se almacenan localmente en este navegador.
+      </p>
+
+      <p class="sub" style="margin-top: 10px;">
+        Puedes eliminar todas las tareas registradas
+        y comenzar nuevamente con un tablero vacío.
+      </p>
+
+      <div style="margin-top: 20px;">
+        <button
+          class="btn secondary"
+          onclick="clearAllTasks()"
+          ${tasks.length === 0 ? 'disabled' : ''}
+        >
+          Eliminar todas las tareas
+        </button>
+      </div>
     </section>
   `;
 }

@@ -1615,3 +1615,23 @@ button {
 /* Accesibilidad: foco visible con teclado y respeto a "reducir movimiento" */
 :focus-visible{outline:2px solid #5aa2f5;outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+
+/* Estado vacío de las columnas Kanban */
+.empty-lane {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 130px;
+  padding: 20px;
+  text-align: center;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+}
+
+.empty-lane p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
