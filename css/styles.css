@@ -39,10 +39,16 @@ button {
 }
 
 .side {
+  position: sticky;
+  top: 0;
   width: 250px;
+  height: 100vh;
+  height: 100dvh;
   flex-shrink: 0;
+  align-self: flex-start;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
   padding: 0 14px 22px;
   background: #0d2441;
   color: #c7d5e7;
