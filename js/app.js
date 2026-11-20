@@ -22,6 +22,13 @@ const iconPaths = {
   mas: '<path d="M12 5v14M5 12h14"/>',
   notificaciones: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
   cerrar: '<path d="M6 6l12 12M18 6 6 18"/>'
+// Iconos añadidos: chevron, flechas del calendario, reloj, puntos para el menú de tarjeta y ajustes
+  chevron: '<path d="m6 9 6 6 6-6"/>',
+  izq: '<path d="m15 18-6-6 6-6"/>',
+  der: '<path d="m9 18 6-6-6-6"/>',
+  reloj: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  puntos: '<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
+  ajustes: '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/>'
 };
 
 function icon(name, size = 19) {
@@ -51,7 +58,7 @@ const nav = [
   ['mensajes', 'mensajes', 'Mensajes']
 ];
 
-const tasks = [
+const seedtasks = [
   ['Optimizar tabla Servicios y Filtros', 'Por hacer', 'Media', 'Ana Gómez', '14 nov. 2026'],
   ['Landing Page Revamp', 'Por hacer', 'Baja', 'Carlos Pérez', '16 nov. 2026'],
   ['Home Screen UI/UX', 'Por hacer', 'Media', 'Laura Martínez', '18 nov. 2026'],
@@ -65,6 +72,87 @@ const tasks = [
   ['Estructura del proyecto', 'Completadas', 'Media', 'Ana Gómez', '11 nov. 2026'],
   ['Modelo de datos', 'Completadas', 'Baja', 'Sofía Torres', '11 nov. 2026']
 ];
+
+// Descripción de cada tarea de ejemplo (se muestra en tarjetas, agenda y detalle).
+const descs = {
+  'Optimizar tabla Servicios y Filtros': 'Implementar filtros de búsqueda y paginación en la tabla de servicios.',
+  'Landing Page Revamp': 'Rediseñar la página principal con un nuevo estilo visual y mejor experiencia.',
+  'Home Screen UI/UX': 'Diseñar la pantalla de inicio de la aplicación con enfoque en usabilidad.',
+  'Implementar API de Proyectos': 'Crear endpoints para la gestión de proyectos (CRUD).',
+  'Desarrollo de tablero Kanban': 'Implementar el tablero de tareas con estados y filtros.',
+  'Integración con base de datos': 'Conectar la API con la base de datos y validar las consultas.',
+  'Documentación Swagger': 'Configurar y validar la documentación de la API REST.',
+  'Diseño de componentes': 'Revisar y ajustar componentes UI según la guía de estilo.',
+  'Pruebas de integración': 'Ejecutar y documentar las pruebas de integración del sistema.',
+  'Configuración del entorno': 'Instalar dependencias y configurar el proyecto en GitHub.',
+  'Estructura del proyecto': 'Crear la arquitectura inicial del frontend y backend.',
+  'Modelo de datos': 'Definir las entidades y relaciones de la base de datos.'
+};
+
+// Estados del tablero, colores de columnas, equipo, meses abreviados y paleta de avatares.
+const states = ['Por hacer', 'En curso', 'En revisión', 'Completadas'];
+const lanes = [['Por hacer', '#5d7ba1'], ['En curso', '#30a4ee'], ['En revisión', '#ffca2c'], ['Completadas', '#21bd8a']];
+const people = ['Ana Gómez', 'Sofía Torres', 'Carlos Pérez', 'Laura Martínez', 'Diego López', 'Valentina Ruiz', 'Andrés Castaño', 'Daniel Rojas'];
+const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const palette = ['#0f3d6e', '#8a3b3b', '#5b3f9e', '#1f7a5c', '#a0562a', '#246c98'];
+
+// Estado con persistencia en localStorage
+// Las tareas se cargan desde localStorage; si no hay datos se usan las de ejemplo (seedTasks) con su descripción.
+let tasks;
+try { tasks = JSON.parse(localStorage.getItem('tf-tasks') || 'null'); } catch (e) { tasks = null; }
+if (!Array.isArray(tasks)) tasks = seedTasks.map(t => [...t, descs[t[0]]]);
+let selected = 0, query = '', day = 14;
+
+// Guarda las tareas en el navegador.
+function save() { try { localStorage.setItem('tf-tasks', JSON.stringify(tasks)); } catch (e) 
+{} }
+
+// Filtra las tareas por prioridad y por el texto buscado.
+function visible() {
+  return tasks.filter(t => (priorityFilter === 'Todas' || t[2] === priorityFilter)
+    && t.slice(0, 4).join(' ').toLowerCase().includes(query.toLowerCase()));
+}
+
+// Avatar con iniciales y un color fijo según el nombre.
+function avatar(name) {
+  const ini = name.split(' ').map(p => p[0]).join('').slice(0, 2);
+  const color = palette[[...name].reduce((s, c) => s + c.charCodeAt(0), 0) % palette.length];
+  return `<span class="av" style="background:${color}">${ini}</span>`;
+}
+
+// Optimización de seguridad: escapa el texto escrito por el usuario antes de pintarlo como HTML.
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+// Convierte la prioridad en clase de color (Alta=rojo, Baja=verde, Media=azul).
+const prio = p => (p === 'Alta' ? 'red' : p === 'Baja' ? 'green' : '');
+// Actualiza el texto de búsqueda y redibuja.
+function setQuery(v) { query = v; render(); }
+// Abre el detalle de la tarea seleccionada.
+function openTask(i) { selected = i; go('detalle'); }
+// Menú "…" de la tarjeta: mueve la tarea a la siguiente columna.
+function cycleStatus(i) { tasks[i][1] = states[(states.indexOf(tasks[i][1]) + 1) % 4]; save(); render(); }
+// Cambia el estado de la tarea desde su detalle.
+function setStatus(i, v) { tasks[i][1] = v; save(); render(); }
+// Elimina la tarea y vuelve al tablero.
+function delTask(i) { tasks.splice(i, 1); save(); selected = 0; go('tareas'); }
+// Selecciona un día del calendario.
+function pickDay(d) { day = d; render(); }
+// Crea una tarea desde la modal, la guarda y abre el tablero.
+function addTask() {
+  const g = id => document.getElementById(id).value.trim();
+  if (!g('task-title')) { document.getElementById('task-title').focus(); return; }
+  const d = new Date((g('task-date') || '2026-11-18') + 'T12:00:00');
+  tasks.unshift([g('task-title'), 'Por hacer', g('task-priority'), g('task-owner'),
+    `${d.getDate()} ${months[d.getMonth()]}. ${d.getFullYear()}`, g('task-desc') || 'Sin descripción.']);
+  save();
+  go('tareas');
+}
+
+// Botón "Nueva tarea" con icono +.
+function newBtn() { return `<button class="btn newbtn" onclick="openNewTask()">${icon('mas', 18)} Nueva tarea</button>`; }
+// Selector de mes del encabezado.
+function monthPicker() {
+  return `<label class="monthpick">${icon('calendario', 18)}<select aria-label="Mes"><option>Noviembre 2026</option><option>Diciembre 2026</option></select></label>`;
+}
 
 // Navegacion y estructura general.
 function go(name) {
@@ -262,17 +350,29 @@ function taskcard(task) {
 
 
 // Vistas principales
+// Modificación, se añadio que las métricas calculadas con las tareas, gráfica de línea semanal y dona de estados.
 function dashboard() {
+  const cnt = s => tasks.filter(t => t[1] === s).length;
+  const total = tasks.length || 1;
   const stats = [
     ['Proyectos activos', '10', '+2 este mes'],
     ['Tareas pendientes', '18', 'En seguimiento'],
     ['Tareas completadas', '32', '+8 esta semana'],
     ['Avance general', '72%', 'Buen progreso']
+    ['Tareas totales', tasks.length, 'tareas', 'blue', '+12% desde el mes pasado'],
+    ['En progreso', cnt('En curso'), 'reloj', 'cyan', 'Tareas activas del equipo'],
+    ['En revisión', cnt('En revisión'), 'filtro', 'violet', 'Esperando aprobación'],
+    ['Completadas', cnt('Completadas'), 'tareas', 'green', Math.round(cnt('Completadas') / 
+  total * 100) + '% de cumplimiento']
   ];
 
-  const chartValues = [52, 68, 61, 77, 63, 89, 72, 81, 61, 80, 73, 92];
-
-  const recentActivity = [
+  const week = [3, 5, 6, 8, 7, 9, 11];
+  const pts = week.map((v, i) => [45 + i * 100, 190 - v * 15]);
+  const line = pts.map(p => p.join(',')).join(' ');
+  let acc = 0;
+  const donut = lanes.map(([n, c]) => { const from = acc; acc += cnt(n) / total * 100; 
+  return `${c} ${from}% ${acc}%`; }).join(',');
+  const recent = [
     ['Sofía Torres', 'Actualizó la API de Proyectos'],
     ['Ana Gómez', 'Creó una nueva tarea'],
     ['Carlos Pérez', 'Completó configuración'],
@@ -280,44 +380,36 @@ function dashboard() {
   ];
 
   return `
-    ${head(
-      'Dashboard',
-      'Resumen general de tus proyectos y actividades.',
-      `<button class="btn" onclick="openNewTask()">+ Nueva tarea</button>`
-    )}
+    ${head('Dashboard', 'Aquí tienes un resumen del progreso de tu equipo.', newBtn())}
     <div class="statgrid">
-      ${stats.map(([label, metric, trend]) => `
+      ${stats.map(([label, value, ico, color, note]) => `
         <div class="stat">
-          <span class="lbl">${label}</span>
-          <div class="metric">${metric}</div>
-          <span class="trend">${trend}</span>
-        </div>
-      `).join('')}
+          <span class="statico ${color}">${icon(ico, 22)}</span>
+          <div><span class="lbl">${label}</span><div class="metric">${value}</div><span class="trend">${note}</span></div>
+        </div>`).join('')}
     </div>
     <div class="layout2">
       <section class="panel">
-        <h2>Actividad de proyectos</h2>
-        <p class="sub">Progreso de actividades durante el año</p>
-        <div class="chart">
-          ${chartValues.map(height => `
-            <div class="chartbar" style="height:${height}%"></div>
-          `).join('')}
-        </div>
-        <p class="footnote">Ene　 Feb　 Mar　 Abr　 May　 Jun　 Jul　 Ago　 Sep　 Oct　 Nov　 Dic</p>
+         <h2>Productividad</h2>
+        <p class="sub">Tareas completadas durante la semana</p>
+        <svg viewBox="0 0 700 230" class="linechart" role="img" aria-label="Tareas completadas por día">
+          ${[0, 3, 6, 9, 12].map(g => `<line x1="40" x2="660" y1="${190 - g * 15}" y2="${190 - g * 15}" stroke="#e8eef6"/><text x="30" y="${194 - g * 15}" font-size="11" text-anchor="end" fill="#8a9ab0">${g}</text>`).join('')}
+          <polygon points="45,190 ${line} 645,190" fill="#2f80ed" opacity=".12"/>
+          <polyline points="${line}" fill="none" stroke="#2f80ed" stroke-width="3" stroke-linejoin="round"/>
+          ${pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="4.5" fill="#fff" stroke="#2f80ed" stroke-width="2.5"/>`).join('')}
+          ${['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((d, i) => `<text x="${45 + i * 100}" y="216" font-size="11" text-anchor="middle" fill="#8a9ab0">${d}</text>`).join('')}
+        </svg>
       </section>
       <section class="panel">
-        <h2>Actividad reciente</h2>
-        ${recentActivity.map(([name, activity]) => `
-          <div class="feedrow">
-            <div>
-              <strong>${name}</strong>
-              <br>
-              <span>${activity}</span>
-            </div>
-            <span>Hoy</span>
-          </div>
-        `).join('')}
-      </section>
+        <h2>Estado de tareas</h2>
+        <p class="sub">Distribución actual</p>
+        <div class="donutwrap">
+          <div class="donut" style="background:conic-gradient(${donut})"><div><strong>${tasks.length}</strong><span>Tareas</span></div></div>
+          <ul class="legend">
+            ${lanes.map(([n, c]) => `<li><i style="background:${c}"></i>${n}<b>${cnt(n)}</b></li>`).join('')}
+          </ul>
+        </div>
+        </section>
     </div>
     <section class="panel" style="margin-top:20px">
       <h2>Próximas tareas</h2>
@@ -332,11 +424,18 @@ function dashboard() {
         </div>
       `).join('')}
     </section>
+    <section class="panel">
+        <h2>Actividad reciente</h2>
+         ${recent.map(([name, act]) => `
+          <div class="feedrow"><div>${avatar(name)} <strong>${name}</strong><br>
+          <span>${act}</span></div><span>Hoy</span></div>`).join('')}
+           </section>
+    </div>
   `;
 }
 
 function tareas() {
-  const visibleTasks = tasks.filter(task => priorityFilter === 'Todas' || task[2] === priorityFilter);
+  const visibleTasks = visible();
   const lanes = [
     ['Por hacer', '#5d7ba1'],
     ['En curso', '#30a4ee'],
@@ -348,7 +447,7 @@ function tareas() {
     ${head(
       'Mis Tareas',
       'Organiza y da seguimiento a tus tareas.',
-      `<button class="btn" onclick="openNewTask()">+ Nueva tarea</button>`
+      `${newBtn()}`
     )}
     ${taskTools('tablero')}
     <div class="boards">
@@ -370,13 +469,13 @@ function tareas() {
 }
 
 function tareaslista() {
-  const visibleTasks = tasks.filter(task => priorityFilter === 'Todas' || task[2] === priorityFilter);
+  const visibleTasks = visible();
 
   return `
     ${head(
       'Mis Tareas · Lista',
       'Consulta el estado, la prioridad y los responsables.',
-      `<button class="btn" onclick="openNewTask()">+ Nueva tarea</button>`
+      `${newBtn()}`
     )}
     ${taskTools('lista')}
     <div class="panel table-panel">
@@ -393,16 +492,16 @@ function tareaslista() {
         <tbody>
           ${visibleTasks.map(task => `
             <tr>
-              <td>${task[0]}</td>
+              <td>${esc(task[0])}</td>
               <td>${task[1]}</td>
               <td>
                 <span class="tag ${task[2] === 'Alta' ? 'red' : task[2] === 'Baja' ? 'green' : ''}">
                   ${task[2]}
                 </span>
               </td>
-              <td>${task[3]}</td>
+              <td>${esc(task[3]}</td>
               <td>
-                <button class="btn secondary" onclick="go('detalle')">Ver detalle</button>
+                <button class="btn secondary" onclick="openTask(${tasks.indexOf(task)})">Ver detalle</button>
               </td>
             </tr>
           `).join('')}
@@ -426,11 +525,11 @@ function proyectos() {
     ${head(
       'Proyectos',
       'Consulta los proyectos y su avance.',
-      `<button class="btn" onclick="openNewTask()">+ Nueva tarea</button>`
+      `${newBtn()}`
     )}
     <div class="projects">
       ${projects.map(([name, progress, description]) => `
-        <article class="project" onclick="go('detalle')">
+        <article class="project" onclick="go('tareas')">
           <span class="tag">Activo</span>
           <h2>${name}</h2>
           <p class="sub" style="min-height:50px">${description}</p>
@@ -445,30 +544,55 @@ function proyectos() {
   `;
 }
 
+// Modificación, en el calendario ahora tendra las tareas por día, selección de día y panel Agenda del día.
 function calendario() {
-  const days = Array.from({ length: 42 }, (_, index) => index - 5);
+  const dated = d => tasks.filter(t => t[4].startsWith(d + ' nov.'));
+  const names = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  const cells = Array.from({ length: 42 }, (_, i) => i - 5);
+  const agenda = dated(day);
 
   return `
     ${head(
       'Calendario',
-      'Consulta fechas y actividades programadas.',
-      `<button class="btn" onclick="openNewTask()">+ Nueva tarea</button>`
+      'Consulta fechas, responsables y próximos vencimientos.',
+      `${newBtn()}`
     )}
-    <div class="panel">
-      <h2>Noviembre de 2026</h2>
-      <div class="calendar">
-        ${['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(day => `
-          <div style="font-weight:700;text-align:center;color:#65809d;padding:9px">${day}</div>
-        `).join('')}
-        ${days.map(day => `
-          <div class="day">
-            <strong>${day >= 1 && day <= 30 ? day : ''}</strong>
-            ${day === 12 ? '<div class="pill" onclick="go(\'detalle\')">API Proyectos</div>' : ''}
-            ${day === 15 ? '<div class="pill" onclick="go(\'detalle\')">Tablero Kanban</div>' : ''}
-            ${day === 18 ? '<div class="pill" onclick="go(\'detalle\')">Home UI/UX</div>' : ''}
-          </div>
-        `).join('')}
-      </div>
+    <div class="calwrap">
+      <section class="panel calpanel">
+        <div class="calnav">
+          <span class="navbtns">
+            <button class="sq" disabled aria-label="Mes anterior">${icon('izq', 16)}</button>
+            <button class="sq" disabled aria-label="Mes siguiente">${icon('der', 16)}</button>
+          </span>
+          <h2>Noviembre 2026</h2>
+          <button class="btn secondary" onclick="pickDay(19)">Hoy</button>
+        </div>
+        <div class="cal7">
+          ${['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'].map(d => `<div class="calhead">${d}</div>`).join('')}
+          ${cells.map(d => {
+            if (d < 1 || d > 30) return '<div class="cd empty"></div>';
+            const list = dated(d);
+            return `<div class="cd ${d === day ? 'sel' : ''}" onclick="pickDay(${d})">
+              <span class="dn ${d === day ? 'on' : ''}">${d}</span>
+              ${list.slice(0, 2).map(t => `<div class="pill ${prio(t[2]) || 'blue'}">${esc(t[0])}</div>`).join('')}
+              ${list.length > 2 ? `<div class="more">+${list.length - 2} más</div>` : ''}
+            </div>`;
+          }).join('')}
+        </div>
+      </section>
+      <aside class="panel agenda">
+        <div class="agendahead">
+          <div><small>AGENDA DEL DÍA</small><h2>${names[(day + 5) % 7]}, ${day} de noviembre</h2></div>
+          <button class="btn sq-btn" onclick="openNewTask()" aria-label="Nueva tarea">${icon('mas', 18)}</button>
+        </div>
+        ${agenda.length ? agenda.map(t => `
+          <div class="agendaitem" onclick="openTask(${tasks.indexOf(t)})">
+            <span class="tag ${prio(t[2])}">${t[2]}</span>
+            <strong>${esc(t[0])}</strong>
+            <p class="sub">${esc(t[5])}</p>
+            <span class="owner">${avatar(t[3])} ${esc(t[3])}</span>
+          </div>`).join('') : '<p class="sub">No hay tareas para este día.</p>'}
+      </aside>
     </div>
   `;
 }
@@ -670,7 +794,13 @@ function newTaskModal() {
   `;
 }
 
+// Modificación, en el detalle de la tarea elegida mostrara el con cambio de estado y botón Eliminar.
 function detalle() {
+  const i = Math.min(selected, tasks.length - 1);
+  const t = tasks[i];
+  if (!t) return `${head('Detalle de tarea', 'No hay tareas disponibles.', 
+  `<button class="btn secondary" onclick="go('tareas')">← Volver a tareas</button>`)}`;
+  
   return `
     ${head(
       'Detalle de tarea',
@@ -678,32 +808,39 @@ function detalle() {
       `<button class="btn secondary" onclick="go('tareas')">← Volver a tareas</button>`
     )}
     <div class="detail">
-      <span class="tag red">Prioridad alta</span>
-      <h2>Implementar API de Proyectos</h2>
-      <p>
-        Crear los endpoints para la gestión de proyectos (CRUD), revisar las validaciones
-        y documentar el comportamiento esperado de la API REST.
-      </p>
+      <span class="tag ${prio(t[2])}">Prioridad ${t[2].toLowerCase()}</span>
+      <h2>${esc(t[0])}</h2>
+      <p>${esc(t[5])}</p>
       <div class="listrow">
         <strong>Estado</strong>
-        <span class="tag">En curso</span>
-      </div>
+        <select onchange="setStatus(${i}, this.value)">${states.map(s => `<option ${s === t[1] ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+        </div>
       <div class="listrow">
         <strong>Responsable</strong>
-        <span>Sofía Torres</span>
+        <span>class="owner">${avatar(t[3])} ${esc(t[3])}</span>
       </div>
       <div class="listrow">
         <strong>Fecha de entrega</strong>
-        <span>12 de noviembre de 2026</span>
+        <span>${esc(t[4])}</span>
       </div>
-      <div class="listrow">
-        <strong>Proyecto</strong>
-        <span>Aplicación TaskFlow</span>
-      </div>
-      <div style="margin-top:22px">
-        <button class="btn" onclick="go('tareas')">Volver al tablero</button>
+      <div style="margin-top:22px;display:flex;gap:10px">
+      <button class="btn" onclick="go('tareas')">Volver al tablero</button>
+      <button class="btn secondary" onclick="if (confirm('¿Eliminar esta tarea?')) delTask(${i})">Eliminar</button> 
       </div>
     </div>
+  `;
+}
+
+// Apartado de ajustes
+function ajustes() {
+  return `
+    ${head('Ajustes', 'Preferencias de la aplicación.')}
+    <section class="panel">
+      <h2>Datos locales</h2>
+      <p class="sub">Las tareas se guardan en este navegador.</p>
+      <p><button class="btn secondary" onclick="localStorage.removeItem('tf-tasks'); location.reload()">Restablecer datos de ejemplo</button></p>
+    </section>
   `;
 }
 
@@ -761,7 +898,15 @@ function login() {
 }
 
 // Renderizado de la aplicación
+// Modificación, se conserva el foco y el cursor del buscador mientras se redibuja al escribir.
 function render() {
+  const a = document.activeElement, id = a && a.id, pos = a && a.selectionStart;
+  paint();
+  const el = id && document.getElementById(id);
+  if (el && (id === 'gq' || id === 'tq')) { el.focus(); el.setSelectionRange(pos, pos); }
+}
+
+function paint() {
   const currentPage = page();
   const views = {
     dashboard,
@@ -792,3 +937,7 @@ window.addEventListener('keydown', event => {
   if (event.key === 'Escape' && modalOpen) closeNewTask();
 });
 render();
+
+// Añadido extra, la tecla Esc cierra la ventana de Nueva Tarea.
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && modalOpen) 
+closeNewTask(); });
