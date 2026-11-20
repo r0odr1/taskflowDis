@@ -182,6 +182,10 @@ function header() {
         <span class="ico">${icon('perfil')}</span>
         <span class="navlabel">Perfil</span>
       </button>
+      <button class="nav ${page() === 'ajustes' ? 'active' : ''}" onclick="go('ajustes')">
+        <span class="ico">${icon('ajustes')}</span>
+        <span class="navlabel">Ajustes</span>
+      </button>
       <div class="bottom">
         <button class="nav" onclick="go('login')">
           <span class="ico">${icon('salir')}</span>
@@ -916,6 +920,7 @@ function paint() {
     nueva,
     detalle,
     perfil,
+    ajustes,
     confirmacion,
     login
   };
