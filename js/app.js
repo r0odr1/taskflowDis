@@ -322,7 +322,7 @@ function taskcard(task) {
     .toUpperCase();
 
   return `
-    <article class="task" onclick="go('detalle')">
+    <article class="task" onclick="openTask(${tasks.indexOf(task)})">
       <div class="task-header">
         <span class="tag ${priorityClass}">
           ● ${task[2]}
@@ -420,7 +420,7 @@ function dashboard() {
             <br>
             <span class="sub">${task[3]}</span>
           </div>
-          <button class="btn secondary" onclick="go('detalle')">Ver detalle</button>
+          <button class="btn secondary" onclick="openTask(${tasks.indexOf(task)})">Ver detalle</button>
         </div>
       `).join('')}
     </section>
@@ -784,10 +784,10 @@ function newTaskModal() {
             <input id="task-date" type="date" value="2026-11-18">
           </div>
         </div>
-        <p class="modal-note">Demostración visual: los datos todavía no se almacenan.</p>
+        <p class="modal-note">La tarea se guardará en este navegador y aparecerá en el tablero.</p>
         <div class="modal-actions">
           <button class="btn secondary" onclick="closeNewTask()">Cancelar</button>
-          <button class="btn" onclick="go('confirmacion')">Guardar tarea (simulación)</button>
+          <button class="btn" onclick="addTask()">Guardar tarea</button>
         </div>
       </section>
     </div>
@@ -818,7 +818,7 @@ function detalle() {
         </div>
       <div class="listrow">
         <strong>Responsable</strong>
-        <span>class="owner">${avatar(t[3])} ${esc(t[3])}</span>
+        <span class="owner">${avatar(t[3])} ${esc(t[3])}</span>
       </div>
       <div class="listrow">
         <strong>Fecha de entrega</strong>
