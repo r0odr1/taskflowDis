@@ -217,21 +217,49 @@ function head(title, desc, button = '') {
   `;
 }
 
+
 function taskcard(task) {
+  const priorityClass =
+    task[2] === 'Alta' ? 'red' : task[2] === 'Baja' ? 'green' : '';
+
+  const initials = task[3]
+    .split(' ')
+    .map(name => name.charAt(0))
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
   return `
     <article class="task" onclick="go('detalle')">
-      <span class="tag ${task[2] === 'Alta' ? 'red' : task[2] === 'Baja' ? 'green' : ''}">
-        ● ${task[2]}
-      </span>
+      <div class="task-header">
+        <span class="tag ${priorityClass}">
+          ● ${task[2]}
+        </span>
+        <span class="task-options" aria-hidden="true">•••</span>
+      </div>
+
       <strong>${task[0]}</strong>
-      <p>Consultar el detalle y dar seguimiento a esta actividad del proyecto.</p>
+
+      <p>
+        Consultar el detalle y dar seguimiento a esta
+        actividad del proyecto.
+      </p>
+
       <div class="taskfoot">
-        <span>▦ ${task[4]}</span>
-        <span>● ${task[3]}</span>
+        <span class="task-date">
+          ${icon('calendario', 15)}
+          ${task[4]}
+        </span>
+
+        <span class="task-owner">
+          <span class="task-avatar">${initials}</span>
+          ${task[3]}
+        </span>
       </div>
     </article>
   `;
 }
+
 
 // Vistas principales
 function dashboard() {
