@@ -22,6 +22,7 @@ const iconPaths = {
   mas: '<path d="M12 5v14M5 12h14"/>',
   notificaciones: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
   cerrar: '<path d="M6 6l12 12M18 6 6 18"/>'
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'
 };
 
 function icon(name, size = 19) {
@@ -93,6 +94,10 @@ function header() {
       <button class="nav ${page() === 'perfil' ? 'active' : ''}" onclick="go('perfil')">
         <span class="ico">${icon('perfil')}</span>
         <span class="navlabel">Perfil</span>
+      </button>
+      <button class="nav ${page() === 'acerca' ? 'active' : ''}" onclick="go('acerca')">
+        <span class="ico">${icon('info')}</span>
+        <span class="navlabel">Acerca de</span>
       </button>
       <div class="bottom">
         <button class="nav" onclick="go('login')">
@@ -707,6 +712,50 @@ function detalle() {
   `;
 }
 
+// Sección "Acerca de": explica de qué trata el proyecto, qué permite hacer y con qué se construyó.
+function acerca() {
+  const funciones = [
+    ['Tablero de tareas', 'organiza el trabajo en cuatro estados: Por hacer, En curso, En revisión y Completadas.'],
+    ['Gestión de tareas', 'crea, busca, mueve de columna, consulta y elimina tareas con prioridad, fecha y responsable.'],
+    ['Dashboard', 'resume el avance del equipo con métricas, una gráfica semanal y la distribución por estado.'],
+    ['Calendario', 'muestra los vencimientos de cada día y una agenda con las tareas del día seleccionado.'],
+    ['Datos guardados', 'las tareas se conservan en el navegador, aunque cierres la página.']
+  ];
+  const tecnologias = [
+    ['HTML5', 'estructura de la página y de sus vistas.'],
+    ['CSS3', 'estilos, cuadrículas y diseño adaptable.'],
+    ['JavaScript', 'lógica de la aplicación, vistas y navegación por hash.'],
+    ['localStorage', 'almacenamiento de las tareas en el navegador.'],
+    ['Figma', 'diseño de referencia de las pantallas.']
+  ];
+  const li = ([titulo, texto]) => `<li><span><strong>${titulo}:</strong> ${texto}</span></li>`;
+
+  return `
+    ${head('Acerca de', 'Conoce de qué trata TaskFlow y qué puedes hacer con él.')}
+    <section class="panel about-hero">
+      <span class="tag">Versión 1.0 · Prototipo funcional</span>
+      <h2>¿Qué es TaskFlow?</h2>
+      <p>TaskFlow es una aplicación web para gestionar proyectos y tareas en equipo. Permite organizar el trabajo en un tablero por estados, asignar responsables, controlar fechas de entrega y seguir el avance desde un dashboard y un calendario.</p>
+      <p>El proyecto nació como actividad académica de Electiva I: Diseño de Aplicaciones Web I. Se tomó un prototipo diseñado en Figma y se programó con HTML, CSS y JavaScript puro, sin frameworks ni servidor.</p>
+    </section>
+    <div class="layout2" style="margin-top:20px">
+      <section class="panel">
+        <h2>Qué puedes hacer</h2>
+        <ul class="about-list">${funciones.map(li).join('')}</ul>
+      </section>
+      <section class="panel">
+        <h2>Tecnologías</h2>
+        <ul class="about-list">${tecnologias.map(li).join('')}</ul>
+      </section>
+    </div>
+    <section class="panel" style="margin-top:20px">
+      <h2>Objetivo</h2>
+      <p class="about-text">Ofrecer una herramienta sencilla y visual para que un equipo pequeño sepa qué tareas tiene, quién las hace y para cuándo, sin depender de configuraciones complejas.</p>
+      <button class="btn" onclick="go('tareas')">Ir a Mis tareas</button>
+    </section>
+  `;
+}
+
 function perfil() {
   return `
     ${head('Mi perfil', 'Datos ilustrativos del usuario.')}
@@ -774,6 +823,7 @@ function render() {
     archivos,
     nueva,
     detalle,
+    acerca,
     perfil,
     confirmacion,
     login
