@@ -28,8 +28,8 @@ const iconPaths = {
   der: '<path d="m9 18 6-6-6-6"/>',
   reloj: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   puntos: '<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
-  ajustes: '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/>'
-  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'
+  ajustes: '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
 };
 
 function icon(name, size = 19) {
