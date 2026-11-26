@@ -1635,3 +1635,11 @@ button {
   font-size: 13px;
   line-height: 1.5;
 }
+
+/* Sección "Acerca de": texto de presentación y listas con viñeta azul. */
+.about-hero h2{margin:12px 0 8px;font-size:22px}
+.about-hero p,.about-text{max-width:780px;color:#4d6485;line-height:1.7}
+.about-list{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.about-list li{display:flex;gap:12px;align-items:flex-start;color:#4d6485;line-height:1.55}
+.about-list li::before{content:"";flex:none;width:8px;height:8px;margin-top:8px;border-radius:50%;background:var(--blue)}
+.about-list strong{color:var(--ink)}
